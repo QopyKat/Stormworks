@@ -23,6 +23,7 @@ getIN = input.getNumber
 getPN = property.getNumber
 setOB = output.setBool
 setON = output.setNumber
+drawT = screen.drawText
 
 function vec(x,y,z) return {x=x,y=y,z=z} end
 function vec2(x,y) return {x=x,y=y} end
@@ -36,6 +37,9 @@ function cross(a,b) return {x=a.y*b.z-a.z*b.y,y=b.x*a.z-a.x*b.z,z=a.x*b.y-a.y*b.
 function dot(a,b) return a.x*b.x+a.y*b.y+a.z*b.z end
 function dot2(a,b) return a.x*b.x+a.y*b.y end
 
+function floor(a,n) f=1 for i=1,n do f=f*10 end return math.floor(a*f)/f end
+function clamp(n,l,h) if n<l then return l elseif n>h then return h else return n end end
+
 engines = { 
   { x =  1.00 , y =  0.00 },
   { x =  0.75 , y =  0.75 },
@@ -47,8 +51,36 @@ engines = {
   { x =  0.75 , y = -0.75 }
 }
 
+sp = {}
+Vx = nil
+Vy = nil
+Vz = nil
+function onDraw()
+  if not enabled then return end
+  for i = 1,9 do
+    drawT(0,i*6-2,floor(sp[i],3))
+  end
+
+  drawT(80,4,floor(Vx.x,3))
+  drawT(80,10,floor(Vx.y,3))
+  drawT(80,16,floor(Vx.z,3))
+  drawT(80,22,floor(Vy.x,3))
+  drawT(80,28,floor(Vy.y,3))
+  drawT(80,34,floor(Vy.z,3))
+  drawT(80,40,floor(Vz.x,3))
+  drawT(80,46,floor(Vz.y,3))
+  drawT(80,52,floor(Vz.z,3))
+  drawT(80,58,floor(projection.x,3))
+  drawT(80,64,floor(projection.y,3))
+
+  drawT(0,64,projectionLengthPV)
+end
+
 function onTick()
+  enabled = getIB(32)
   if not getIB(32) then -- NOT Enabled
+    setON(1, 0)
+    setON(2, 0)
     return
   end
 
@@ -62,7 +94,10 @@ function onTick()
   bot = vec((bot1.x + bot2.x) / 2, (bot1.y + bot2.y) / 2, (bot1.z + bot2.z) / 2)
   -- pos = { x = bot.x , y = bot.y , z = bot.z - 2.5 } -- 2.5 correct ? #
   Vz = norm(vec((top.x - bot.x) / 30.50, (top.y - bot.y) / 30.50, (top.z - bot.z) / 30.00))
-  Vx = vecp(bot1, bot2) -- normed by default
+
+  -- Vx = vecp(bot1, bot2) -- normed by default
+  Vx = vecp(bot2, bot1) -- normed by default
+  Vx = vec(bot2.x - bot1.x, bot2.y - bot1.y, bot2.z - bot1.z)
   Vy = cross(Vz, Vx)
 
   -- xTarget = getIN(10) -- use init X for now
@@ -71,20 +106,22 @@ function onTick()
 
   -- targetDir = vec(0.1, 0.1, 1) -- calculated by ALG, normalize
   targetDir = vec(0, 0, 1) -- calculated by ALG, normalize
-  projection = vec2(dot(targetDir, Vx), dot(targetDir, Vy))
+  projection = vec2(-dot(targetDir, Vx), dot(targetDir, Vy))
   projectionLengthPV = len2(projection) -- put into PID
-  setON(11, projection.x)
-  setON(12, projection.y)
-  -- setON(1, 0)
-  -- setON(2, projectionLengthPV)
-  -- targetDir = { x = getIN(12) , y = getIN(13) , z = getIN(14) }
-  projectionLength = projectionLengthPV
+  --projectionLengthPV = clamp(projectionLengthPV,-getPN("clamp"), getPN("clamp"))
 
-  -- next script here
-  projectionLength = getIN(11)
+  if projectionLengthPV < getPN("threshold") then
+    projectionLengthPV = 0
+  end
+
+  setON(1, 0)
+  setON(2, projectionLengthPV)
+  -- targetDir = { x = getIN(12) , y = getIN(13) , z = getIN(14) }
+
+
+  projectionLength = projectionLengthPV
   if projectionLength ~= 0 then
     projection = scale2(projection, projectionLength)
-    setON(10, projectionLength)
 
     if (1 - spoiler) < projectionLength then
       offset = spoiler + projectionLength - 1
@@ -99,12 +136,12 @@ function onTick()
       else
         s = spoiler
       end
-      setON(i, s)
+      sp[i] = s
     end
-    setON(9, spoiler)
-	else
-		for i = 1,9 do
-			setON(i, spoiler)
-		end
+    sp[9] = spoiler
+  else
+    for i = 1,9 do
+      sp[i] = spoiler
+    end
   end
 end
