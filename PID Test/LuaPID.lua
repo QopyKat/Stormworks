@@ -15,7 +15,6 @@ N1: Controll Output
 getN = input.getNumber
 setN = output.setNumber
 getB = input.getBool
-getPN = property.getNumber
 
 function pid(p,i,d) return {p=p,i=i,d=d,e=0,s=0} end
 function pid_tick(c,x,t)
@@ -35,5 +34,7 @@ function onTick()
         end
         v = pid_tick(controller, getN(2), getN(1))
         setN(1, v)
+    else
+        setN(1, 0)
     end
 end

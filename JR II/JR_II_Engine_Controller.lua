@@ -37,15 +37,14 @@ activated = false
 
 function onTick()
     if getB(1) then
-        pid_engine = pid(getN(4), getN(5), getN(6))
-        target_rps = getN(7)
         if getB(3) and not activated then
+            pid_engine = pid(getN(4), getN(5), getN(6))
+            target_rps = getN(7)
             activated = true
         end
         setB(0, false)
         setN(0, 0)
 
-    -- elseif getB(2) then
     elseif activated then
         rps = getN(1)
         throttle = pid_tick(pid_engine, rps, target_rps)

@@ -35,6 +35,7 @@ getPS = property.getText
 -- 3DVector Functions
 function vec(x,y,z) return {x=x,y=y,z=z} end
 function vecp(a,b) return {x=b.x-a.x,y=b.y-a.y,z=b.z-a.z} end
+function len(v) return math.sqrt(v.x*v.x+v.y*v.y+v.z*v.z) end
 function norm(v) l=len(v) return {x=v.x/l,y=v.y/l,z=v.z/l} end
 function v3muls(v,s) return {x=v.x*s,y=v.y*s,z=v.z*s} end
 function v3add(a,b) return {x=a.x+b.x,y=a.y+b.y,z=a.z+b.z} end
@@ -44,26 +45,26 @@ function pid(p,i,d) return {p=p,i=i,d=d,e=0,s=0} end
 function pid_tick(c,x,t)
     e=t-x
     c.s=c.s+e
-    v=e*c.p+c.s*c.i+(e-c.e)*c.d
+    v=e*c.p+c.s*c.i+(e-c.e)*c.d     
     c.e=e
     return v
 end
 
 pid_pitch = nil
 pid_yaw = nil
+activated = false
 
 function onTick()
-    if getB(1) and not getB(3) then
-        pid_pitch = pid(getN(1), getN(2), getN(3))
-        pid_yaw = pid(getN(1), getN(2), getN(3))
+    if getB(1) then
+        if getB(3) and not activated then
+            pid_pitch = pid(getN(1), getN(2), getN(3))
+            pid_yaw = pid(getN(1), getN(2), getN(3))
+            activated = true
+        end
         setN(1, 0)
         setN(2, 0)
 
-    elseif getB(2) then
-        if pid_pitch == nil or pid_yaw == nil then
-            return
-        end
-
+    elseif activated and getB(2) then
         bottom = vec(getN(1), getN(2), getN(3))
         top = vec(getN(4), getN(5), getN(6))
         front = vec(getN(7), getN(8), getN(9))

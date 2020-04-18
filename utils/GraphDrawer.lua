@@ -34,7 +34,7 @@ function onTick()
     if getB(1) then
         ready = true
 
-        values[index] = (getN(1) - offset) / range * height + height / 2
+        values[index] = -(getN(1) - offset) / range * height + height / 2
         if index == width then
             index = 1
         else
