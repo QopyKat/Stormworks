@@ -53,7 +53,7 @@ pid_pitch = nil
 pid_yaw = nil
 
 function onTick()
-    if getB(1) then
+    if getB(1) and not getB(3) then
         pid_pitch = pid(getN(1), getN(2), getN(3))
         pid_yaw = pid(getN(1), getN(2), getN(3))
         setN(1, 0)

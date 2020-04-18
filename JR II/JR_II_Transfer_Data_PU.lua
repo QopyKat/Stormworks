@@ -18,8 +18,8 @@ N15: Angular Speed Yaw
 N16: Gimbal Target Pitch
 N17: Gimbal Target Yaw
 N18: Main Engine RPS
-N19: Main Engine Throttle
-N20: Main Engine Thrust Spoiler
+N19: Main Engine Thrust Spoiler
+N20: Main Engine Throttle
 ===== Output =====
 N1 : X Up
 N2 : Y Up
@@ -36,14 +36,15 @@ N12: Angular Speed Yaw
 N13: Gimbal Target Pitch
 N14: Gimbal Target Yaw
 N15: Main Engine RPS
-N16: Main Engine Throttle
-N17: Main Engine Thrust Spoiler
+N16: Main Engine Thrust Spoiler
+N17: Main Engine Throttle
 ===== Properties =====
 ]]
 
 -- 3DVector Functions
 function vec(x,y,z) return {x=x,y=y,z=z} end
 function vecp(a,b) return {x=b.x-a.x,y=b.y-a.y,z=b.z-a.z} end
+function len(v) return math.sqrt(v.x*v.x+v.y*v.y+v.z*v.z) end
 function norm(v) l=len(v) return {x=v.x/l,y=v.y/l,z=v.z/l} end
 function v3muls(v,s) return {x=v.x*s,y=v.y*s,z=v.z*s} end
 function v3add(a,b) return {x=a.x+b.x,y=a.y+b.y,z=a.z+b.z} end
@@ -74,4 +75,7 @@ function onTick()
     setN(12, getN(15))
     setN(13, getN(16))
     setN(14, getN(17))
+    setN(15, getN(18))
+    setN(16, getN(19))
+    setN(17, getN(20))
 end

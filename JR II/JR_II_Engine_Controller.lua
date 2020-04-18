@@ -2,12 +2,13 @@
 ===== Input =====
 B1: Initialize
 ==> IF B1
-N1: Engine Controller P
-N2: Engine Controller I
-N3: Engine Controller D
-N4: Target RPS
+N4: Engine Controller P
+N5: Engine Controller I
+N6: Engine Controller D
+N7: Target RPS
 ==> ELSE
 B2: Enabled
+B3: Launch
 N1: RPS
 ===== Output =====
 B1: Compressor
@@ -35,18 +36,20 @@ target_rps = nil
 activated = false
 
 function onTick()
-    -- if getB(1) then
-    if activated then
-        pid_engine = pid(getN(1), getN(2), getN(3))
-        target_rps = getN(4)
+    if getB(1) then
+        pid_engine = pid(getN(4), getN(5), getN(6))
+        target_rps = getN(7)
+        if getB(3) and not activated then
+            activated = true
+        end
         setB(0, false)
         setN(0, 0)
 
-    elseif getB(2) then
+    -- elseif getB(2) then
+    elseif activated then
         rps = getN(1)
         throttle = pid_tick(pid_engine, rps, target_rps)
-        activated = true
-        setB(0, rps < 5)
+        setB(1, rps < 5)
         setN(1, throttle)
 
     else
